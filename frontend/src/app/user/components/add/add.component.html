@@ -1,0 +1,26 @@
+<div class="alert alert-{{alert.key}} alert-dismissible fade show" role="alert" *ngIf="alert.show" >
+    {{alert.text}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<div class="container">
+    <form [formGroup]="createUserForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" aria-describedby="name" formControlName="name">
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" aria-describedby="email" formControlName="email">
+        </div>
+        <div class="mb-3">
+            <label for="phone" class="form-label">Phone</label>
+            <input type="tel" class="form-control" id="phone" name="phone" aria-describedby="phone" formControlName="phone">
+        </div>
+        <div class="mb-3">
+            <label for="address" class="form-label">Address</label>
+            <input type="text" class="form-control" id="address" name="address" aria-describedby="address" formControlName="address">
+        </div>
+        <button  class="btn btn-secondary me-2" routerLink="/users/list">Back</button>
+        <button type="submit" class="btn btn-info text-white">Create</button>
+    </form>
+</div>

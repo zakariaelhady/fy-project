@@ -1,0 +1,25 @@
+<div class="container" *ngIf="!update">
+    <dl class="row">
+        <dt class="col-sm-3">Name</dt>
+        <dd class="col-sm-9">{{project.name}}</dd>
+
+        <dt class="col-sm-3">Description</dt>
+        <dd class="col-sm-9">{{project.description}}</dd>
+    </dl>
+    <button  class="btn btn-primary" (click)="changeUpdateState()">Edit</button>
+</div>
+
+<div class="container" *ngIf="update">
+    <form [formGroup]="updateProjectForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" aria-describedby="name" formControlName="name">
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <input type="description" class="form-control" id="description" name="description" aria-describedby="description" formControlName="description" >
+        </div>
+        <button  class="btn btn-outline-info me-2" (click)="changeUpdateState()">Cancel</button>
+        <button type="submit" class="btn btn-info text-white">Validate</button>
+    </form>
+</div>

@@ -1,0 +1,22 @@
+<div class="wrapper">
+    <div class="logo">
+        <img src="https://cdn-icons-png.flaticon.com/512/219/219986.png" alt="">
+    </div>
+    <div class="text-center mt-4 name">
+        Sign in
+    </div>
+    <form class="p-3 mt-3" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="form-field d-flex align-items-center">
+            <span class="far fa-user"></span>
+            <input type="text" name="userName" id="userName" placeholder="Username" formControlName="username">
+        </div>
+        <div class="form-field d-flex align-items-center">
+            <span class="fas fa-key"></span>
+            <input type="password" name="password" id="pwd" placeholder="Password" formControlName="password">
+        </div>
+        <button class="btn mt-3" type="submit">Login</button>
+    </form>
+    <!-- <div class="text-center fs-6">
+        <a href="#">Forget password?</a> or <a href="#">Sign up</a>
+    </div> -->
+</div>

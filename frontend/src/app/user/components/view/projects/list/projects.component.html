@@ -1,0 +1,42 @@
+<div class="d-flex justify-content-between me-2 mb-3">
+    <form class="d-flex" role="search" [formGroup]="searchProjectForm" >
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" formControlName="search">
+    </form>
+    <a mat-raised-button  color="accent" [routerLink]="['new']">
+        <mat-icon>add</mat-icon>
+        Add Project
+    </a>
+</div>
+<div class="mat-elevation-z1">
+    <table mat-table [dataSource]="dataSource" matSort (matSortChange)="customSort($event)">
+        <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by name"> Name </th>
+            <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+        </ng-container>
+        <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by description"> description </th>
+            <td mat-cell *matCellDef="let element"> {{element.description}} </td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef> actions </th>
+            <td mat-cell *matCellDef="let element"> 
+                <button mat-mini-fab color="primary"  aria-label="show project" class="mx-2" [routerLink]="['details',element._id,'info']" >
+                    <mat-icon>remove_red_eye</mat-icon>
+                </button>
+                <button mat-mini-fab color="warn" aria-label="delete project" class="mx-2" (click)="deleteProject(element._id)" >
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </td>
+        </ng-container>
+        
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <mat-paginator showFirstLastButtons
+                [pageSizeOptions]="pageSizeOptions"
+                (page)="onPaginate($event)"
+                [length]="length" #paginator
+                aria-label="Select page of periodic elements">
+    </mat-paginator>
+</div>

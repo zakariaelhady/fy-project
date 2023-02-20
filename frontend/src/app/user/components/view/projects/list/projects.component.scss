@@ -1,0 +1,41 @@
+table {
+    width: 100%;
+}
+mat-icon {
+    font-size: 17px;
+}
+button{
+    width: 35px;
+    height: 35px;
+}
+
+@mixin mat-table-columns($columns){
+    .mat-column-
+    {
+        @each $colName, $props in $columns {
+            $width: map-get($props, 'width');
+            &#{$colName} 
+            {
+                flex: $width;
+                min-width: $width;
+                @if map-has-key($props, 'color') 
+                {
+                    color: map-get($props, 'color');
+                }
+            }  
+        }
+    }
+}
+
+@include mat-table-columns((
+    name: (width: 150px, color: dimgray),
+    phone: (width: 150px, color: dimgray),
+    address:(width: 150px, color: dimgray),
+    actions:(width: 10%, color: dimgray)
+));
+
+.mat-header-cell  {
+    font-size: larger;
+    font-weight: 500;
+    text-transform: capitalize;
+}

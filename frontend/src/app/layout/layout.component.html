@@ -1,0 +1,42 @@
+<mat-drawer-container >
+    <mat-drawer mode="side" opened>
+        <div class="sidebar">
+            <h1 class="logo">
+                <a href="#">demo <span>App</span></a>
+            </h1>
+            <div class="nav-wrap">
+                <nav class="main-nav" role="navigation">
+                    <ul class="unstyled list-hover-slide">
+                        <li><a [routerLink]="['/users/list']" routerLinkActive="active-link" >Users</a></li>
+                        <li><a>link2</a></li>
+                        <li><a>link3</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </mat-drawer>
+    <mat-drawer-content>
+        <div id="content">
+            <nav class="navbar bg-light">
+                <div class="container-fluid d-flex justify-content-between">
+                    <span class="navbar-brand mb-0 h1">Navbar</span>
+                    <div *ngIf="isLoggedIn">
+                        <span class="me-2 align-middle">{{username}}</span>
+                        <mat-icon class="me-2 align-middle " (click)="logout()">logout</mat-icon>
+                        <!-- <a class="nav-link btn"  (click)="logout()">Logout</a> -->
+                    </div>
+                </div>
+            </nav>
+            <div class="container-fluid bg-light">
+                <div class="card" >
+                    <div class="card-body">
+                        <router-outlet></router-outlet>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </mat-drawer-content>
+</mat-drawer-container>
+
+
+
