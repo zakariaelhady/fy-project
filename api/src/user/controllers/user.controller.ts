@@ -1,10 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request } from '@nestjs/common';
 import { SortOrder } from 'mongoose';
 import { RoleGuard, Roles, Unprotected } from 'nest-keycloak-connect';
 import { ProjectCreateDto } from '../dto/project-create.dto';
 import { RequestOptionsDto } from '../dto/request-options.dto';
 import { UserCreateDto } from '../dto/user-create.dto';
 import { UserUpdateDto } from '../dto/user-update.dto';
+import { AccountService } from '../services/account.service';
+import { KeycloakUserService } from '../services/keycloak-user.service';
 import { ProjectService } from '../services/project.service';
 import { UserService } from '../services/user.service';
 import { Project } from '../shemas/project.shema';
@@ -13,7 +15,9 @@ import { User } from '../shemas/user.shema';
 @Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService,
-        private projectService: ProjectService){}
+        private projectService: ProjectService,
+        private keycloackUserService: KeycloakUserService,
+        private accountService: AccountService){}
 
     @Get(':userId')
     async getUserById(@Param('userId') userId: string): Promise<User>{
@@ -37,8 +41,13 @@ export class UserController {
     }
 
     @Post()
-    async createUser(@Body() userCreateDto: UserCreateDto): Promise<User>{
-        return await this.userService.createUser(userCreateDto);
+    async createUser(@Request() req){
+        const user=req.body;
+        const account=user.account;
+        const newAccount=this.accountService.createAccount(account);
+        const newUser=this.userService.createUser(user)
+        this.userService.setAccount(await newUser,await newAccount)
+        return this.keycloackUserService.createUser(req.headers.authorization,user);
     }
 
     @Patch(':userId')

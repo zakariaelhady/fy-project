@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model, SortOrder, SortValues } from 'mongoose';
+import mongoose, { FilterQuery, Model, ObjectId, SortOrder, SortValues } from 'mongoose';
 import { RequestOptionsDto } from '../dto/request-options.dto';
+import { Account } from '../shemas/account.shema';
 import { Project } from '../shemas/project.shema';
 import { User, UserDocument } from '../shemas/user.shema';
 
@@ -25,6 +26,7 @@ export class UserDao {
     async create(user: User): Promise<User>{
         const newUser = new this.userModel(user);
         await newUser.populate('projects');
+        await newUser.populate('account');
         return newUser.save();
     }
 
@@ -55,5 +57,13 @@ export class UserDao {
 
     async findOnePopulate(userFilterQuery: FilterQuery<User>): Promise<User>{
         return this.userModel.findOne(userFilterQuery).populate('projects');
+    }
+
+    async setAccount(userFilterQuery: FilterQuery<User>, accountId: string){
+        return this.userModel.findOneAndUpdate(
+            userFilterQuery,
+            { $set: { account: new mongoose.Types.ObjectId(accountId) } },
+            { new: true },
+        );
     }
 }

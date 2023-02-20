@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { UserDao } from '../dao/user.dao';
 import { ProjectCreateDto } from '../dto/project-create.dto';
 import { RequestOptionsDto } from '../dto/request-options.dto';
 import { UserCreateDto } from '../dto/user-create.dto';
 import { UserUpdateDto } from '../dto/user-update.dto';
+import { Account } from '../shemas/account.shema';
 import { Project } from '../shemas/project.shema';
 import { User, UserDocument } from '../shemas/user.shema';
 
@@ -60,5 +61,9 @@ export class UserService {
 
     async removeProject(userId: string,projectId:string): Promise<User>{
         return await this.userDao.removeProject({_id: userId},projectId);
+    }
+
+    async setAccount(user: Partial<User>,accountId: string): Promise<User>{
+        return await this.userDao.setAccount(user,accountId);
     }
 }

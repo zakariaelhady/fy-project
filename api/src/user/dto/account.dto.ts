@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsOptional, IsString, Matches, MinLength } from 'class-validator';
-import { RoleDto } from './role.dto';
+import { Role } from '../shemas/role.shema';
 export class AccountDto{
     @IsString()
     @IsNotEmpty()
@@ -13,5 +13,5 @@ export class AccountDto{
     password: string;
 
     @IsOptional()
-    roles: RoleDto[] 
+    roles: Role[] 
 }

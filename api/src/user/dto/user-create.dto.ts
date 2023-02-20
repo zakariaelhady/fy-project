@@ -16,22 +16,13 @@ export class UserCreateDto{
     email: string;
     
     @IsString()
-    @IsNotEmpty()
-    @MinLength(4)
-    username: string;
-    
-    @IsString()
-    @IsNotEmpty()
-    @MinLength(5)
-    @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {message: 'password too weak'})
-    password: string;
-    
-    @IsString()
     @IsPhoneNumber('MA')
     phone: string;
 
     @IsString()
     address: string;
+
+    account: AccountDto;
     
     projects: [Project];
 }

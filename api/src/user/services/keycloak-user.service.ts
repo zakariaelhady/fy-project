@@ -1,7 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as queryString from 'querystring';
 import { catchError, map } from 'rxjs/operators';
 import { RoleDto } from '../dto/role.dto';
 import { UserCreateDto } from '../dto/user-create.dto';
@@ -17,7 +16,7 @@ export class KeycloakUserService {
 
     createUser(access_token: string,user: UserCreateDto){
         const body={
-            "username": user.username,
+            "username": user.account.username,
             "enabled": true,
             "email": user.email,
             "firstName": user.firstname,
@@ -25,7 +24,7 @@ export class KeycloakUserService {
             "credentials": [
                 {
                     "type": "password",
-                    "value": user.password,
+                    "value": user.account.password,
                     "temporary": false
                 }
             ]
@@ -82,7 +81,7 @@ export class KeycloakUserService {
         return this.http.delete (
             AssignRoleToUserUri,{
                 data: roleDto,
-                headers: { Authorization: `Bearer ${access_token}` }
+                headers: this.getAuthorization(access_token).headers
             }
         ).pipe( 
             map(res => res.data),
@@ -91,7 +90,7 @@ export class KeycloakUserService {
     }
 
     getAuthorization(access_token: string) {
-        return { headers: { Authorization: `Bearer ${access_token}` } }
+        return { headers: { Authorization: access_token } }
     }
 
 }
