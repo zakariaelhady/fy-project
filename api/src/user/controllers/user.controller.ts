@@ -43,21 +43,53 @@ export class UserController {
     @Post()
     async createUser(@Request() req){
         const user=req.body;
-        const account=user.account;
-        const newAccount=this.accountService.createAccount(account);
-        const newUser=this.userService.createUser(user)
-        this.userService.setAccount(await newUser,await newAccount)
-        return this.keycloackUserService.createUser(req.headers.authorization,user);
+        this.keycloackUserService.createUser(req.headers.authorization,user).subscribe(async res=>{
+            const account=user.account;
+            const newAccount=this.accountService.createAccount(account);
+            const newUser=this.userService.createUser(user);
+            this.userService.setAccount(await newUser,await newAccount);
+        }); 
     }
 
     @Patch(':userId')
-    async updateUser(@Param('userId') userId: string,@Body() userUpdateDto: UserUpdateDto): Promise<User>{
-        return await this.userService.updateUser(userId,userUpdateDto);
+    async updateUser(@Request() req){
+        const user=this.userService.getUserById(req.params.userId);
+        const userUpdate=req.body;
+        this.keycloackUserService.getUser(req.headers.authorization,(await user).email).subscribe((id)=>{
+            this.keycloackUserService.updateUser(req.headers.authorization,id,userUpdate).subscribe(async ()=>{
+                await this.userService.updateUser(req.params.userId,userUpdate);
+            });
+        }); 
     }
 
     @Delete(':userId')
-    async deleteUser(@Param('userId') userId: string): Promise<User>{
-        return await this.userService.deleteUser(userId);
+    async deleteUser(@Request() req){
+        const userId=req.params.userId;
+        const user=this.userService.getUserById(userId);
+        this.keycloackUserService.getUser(req.headers.authorization,(await user).email).subscribe((id)=>{
+            this.keycloackUserService.deleteUser(req.headers.authorization,id).subscribe(async ()=>{
+                await this.userService.deleteUser(userId);
+            });
+        }); 
+    }
+
+    @Post(':userId/roles')
+    async assignRole(@Request() req){
+        const role=req.body;
+        const userId=req.params.userId;
+        const user=this.userService.getUserById(userId);
+        this.keycloackUserService.getUser(req.headers.authorization,(await user).email).subscribe((id)=>{
+            this.keycloackUserService.assignRoleToUser(req.headers.authorization,id,role).subscribe(async ()=>{});
+        }); 
+    }
+    @Delete(':userId/roles')
+    async unassignRole(@Request() req){
+        const role=req.body;
+        const userId=req.params.userId;
+        const user=this.userService.getUserById(userId);
+        this.keycloackUserService.getUser(req.headers.authorization,(await user).email).subscribe((id)=>{
+            this.keycloackUserService.unassignRoleToUser(req.headers.authorization,id,role).subscribe(async ()=>{});
+        }); 
     }
 
     @Get(':userId/projects')

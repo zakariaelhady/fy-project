@@ -14,6 +14,16 @@ export class KeycloakUserService {
         this.keycloakUsers = config.get('KEYCLOAK_USERS');
     }
 
+    getUser(access_token: string,email: string): any{
+        return this.http.get (
+            this.keycloakUsers+`?email=${email}`,
+            this.getAuthorization(access_token)
+        ).pipe( 
+            map(res => res.data[0].id),
+            catchError( e => { throw new HttpException( e.response.data, e.response.status) })
+        );
+    }
+
     createUser(access_token: string,user: UserCreateDto){
         const body={
             "username": user.account.username,
@@ -51,7 +61,7 @@ export class KeycloakUserService {
             this.getAuthorization(access_token)
         ).pipe( 
             map(res => res.data),
-            catchError( e => { throw new HttpException( e.response.data, e.response.status) })
+            catchError(e=> { throw new HttpException( e.response.data, e.response.status) })
         );
     }
     deleteUser(access_token: string,userId: string){
