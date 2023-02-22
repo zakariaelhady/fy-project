@@ -56,15 +56,10 @@ export class UserService {
 
     //
     getUserProjects(projectsIdList: string[]){
-        const result = new Subject<any[]>();
-        this.projectClient.send(
+        return this.projectClient.send(
             'projects.get',
             new GetUserProjectsEvent(projectsIdList),
-        ).subscribe((projects)=> {
-            result.next(projects);
-            result.complete();
-        });
-        return result;
+        )
     }
 
     async addProject(userId: string,{name,description}: ProjectCreateDto){
@@ -94,15 +89,10 @@ export class UserService {
     }
 
     async updateProject(projectId:string,{name,description}: ProjectUpdateDto){
-        const result = new Subject<any>();
-        this.projectClient.send(
+        return this.projectClient.send(
             'projects.update',
             new ProjectUpdatedEvent(projectId,name,description),
-        ).subscribe((project)=>{
-            result.next(project);
-            result.complete();
-        });
-        return result;
+        )
     }
 
     async setAccount(user: Partial<User>,accountId: string): Promise<User>{
