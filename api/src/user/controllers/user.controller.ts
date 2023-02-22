@@ -1,23 +1,24 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, OnModuleInit, Param, Patch, Post, Query, Request } from '@nestjs/common';
+import { ClientKafka } from '@nestjs/microservices';
 import { SortOrder } from 'mongoose';
 import { RoleGuard, Roles, Unprotected } from 'nest-keycloak-connect';
+import { Subject } from 'rxjs';
 import { ProjectCreateDto } from '../dto/project-create.dto';
+import { ProjectUpdateDto } from '../dto/project-update.dto';
 import { RequestOptionsDto } from '../dto/request-options.dto';
 import { UserCreateDto } from '../dto/user-create.dto';
 import { UserUpdateDto } from '../dto/user-update.dto';
 import { AccountService } from '../services/account.service';
 import { KeycloakUserService } from '../services/keycloak-user.service';
-import { ProjectService } from '../services/project.service';
 import { UserService } from '../services/user.service';
-import { Project } from '../shemas/project.shema';
 import { User } from '../shemas/user.shema';
 
 @Controller('users')
-export class UserController {
+export class UserController implements OnModuleInit{
     constructor(private readonly userService: UserService,
-        private projectService: ProjectService,
         private keycloackUserService: KeycloakUserService,
-        private accountService: AccountService){}
+        private accountService: AccountService,
+        @Inject('PROJECT_SERVICE') private projectClient: ClientKafka){}
 
     @Get(':userId')
     async getUserById(@Param('userId') userId: string): Promise<User>{
@@ -92,25 +93,36 @@ export class UserController {
         }); 
     }
 
-    @Get(':userId/projects')
-    async getUserProjects(@Param('userId') userId: string): Promise<Project[]>{
-        return (await this.userService.getUserProjects(userId)).projects;
-    }
-
     @Get(':userId/projects/count')
     async getProjectsCount(@Param('userId') userId: string): Promise<number>{
-        return await this.projectService.getProjectsCount(userId);
+        return (await this.userService.getUserById(userId)).projects.length;
+    }
+
+    @Get(':userId/projects')
+    async getUserProjects(@Param('userId') userId: string){
+        const projectsList=(await this.userService.getUserById(userId)).projects
+        return this.userService.getUserProjects(projectsList);
     }
 
     @Post(':userId/projects')
-    async addProject(@Param('userId') userId: string,@Body() projectCreateDto: ProjectCreateDto): Promise<User>{
-        const newProject=this.projectService.createProject(projectCreateDto);
-        return this.userService.addProject(userId,await newProject)
+    async addProject(@Param('userId') userId: string,@Body() projectCreateDto: ProjectCreateDto){
+        return this.userService.addProject(userId,projectCreateDto)
+    }
+
+    @Patch('projects/:projectId')
+    async updateProject(@Param() projectId: string,@Body() projectUpdateDto: ProjectUpdateDto){
+        return this.userService.updateProject(projectId,projectUpdateDto);
     }
 
     @Delete(':userId/projects/:projectId')
-    async removeProject(@Param('userId') userId: string,@Param('projectId') projectId: string): Promise<User>{
-        const newProject=this.projectService.deleteProject(projectId);
-        return this.userService.removeProject(userId,await newProject)
+    async removeProject(@Param('userId') userId: string,@Param('projectId') projectId: string){
+        return this.userService.removeProject(userId,projectId);
+    }
+
+    async onModuleInit() {
+        this.projectClient.subscribeToResponseOf('projects.get');
+        this.projectClient.subscribeToResponseOf('projects.add');
+        this.projectClient.subscribeToResponseOf('projects.delete');
+        this.projectClient.subscribeToResponseOf('projects.update');
     }
 }

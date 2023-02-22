@@ -1,18 +1,22 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId } from 'mongoose';
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientKafka } from '@nestjs/microservices';
+import { lastValueFrom, Observable, Subject, tap } from 'rxjs';
 import { UserDao } from '../dao/user.dao';
 import { ProjectCreateDto } from '../dto/project-create.dto';
+import { ProjectUpdateDto } from '../dto/project-update.dto';
 import { RequestOptionsDto } from '../dto/request-options.dto';
 import { UserCreateDto } from '../dto/user-create.dto';
 import { UserUpdateDto } from '../dto/user-update.dto';
-import { Account } from '../shemas/account.shema';
-import { Project } from '../shemas/project.shema';
-import { User, UserDocument } from '../shemas/user.shema';
+import { GetUserProjectsEvent } from '../events/get-user-projects.event';
+import { ProjectCreatedEvent } from '../events/project-created.event';
+import { ProjectDeletedEvent } from '../events/project-deleted.event';
+import { ProjectUpdatedEvent } from '../events/project-updated.event';
+import { User } from '../shemas/user.shema';
 
 @Injectable()
 export class UserService {
-    constructor(private readonly userDao: UserDao) {}
+    constructor(private readonly userDao: UserDao,
+        @Inject('PROJECT_SERVICE') private readonly projectClient: ClientKafka) {}
 
     async getUserById(userId: string): Promise<User>{
         return await this.userDao.findOne({_id: userId});
@@ -51,16 +55,54 @@ export class UserService {
     }
 
     //
-    async getUserProjects(userId: string): Promise<User>{
-        return await this.userDao.findOnePopulate({_id: userId});
+    getUserProjects(projectsIdList: string[]){
+        const result = new Subject<any[]>();
+        this.projectClient.send(
+            'projects.get',
+            new GetUserProjectsEvent(projectsIdList),
+        ).subscribe((projects)=> {
+            result.next(projects);
+            result.complete();
+        });
+        return result;
     }
 
-    async addProject(userId: string,projectId:string): Promise<User>{
-        return await this.userDao.addProject({_id: userId},projectId);
+    async addProject(userId: string,{name,description}: ProjectCreateDto){
+        const result = new Subject<Promise<User>>();
+        this.projectClient.send(
+            'projects.add',
+            new ProjectCreatedEvent(name,description),
+        ).subscribe((id)=>{
+            const user=this.userDao.addProject({_id: userId},id)
+            result.next(user);
+            result.complete();
+        });
+        return result;
     }
 
-    async removeProject(userId: string,projectId:string): Promise<User>{
-        return await this.userDao.removeProject({_id: userId},projectId);
+    async removeProject(userId: string,projectId:string){
+        const result = new Subject<Promise<User>>();
+        this.projectClient.send(
+            'projects.delete',
+            new ProjectDeletedEvent(projectId),
+        ).subscribe((id)=>{
+            const user=this.userDao.removeProject({_id: userId},id);
+            result.next(user);
+            result.complete();
+        });
+        return result;
+    }
+
+    async updateProject(projectId:string,{name,description}: ProjectUpdateDto){
+        const result = new Subject<any>();
+        this.projectClient.send(
+            'projects.update',
+            new ProjectUpdatedEvent(projectId,name,description),
+        ).subscribe((project)=>{
+            result.next(project);
+            result.complete();
+        });
+        return result;
     }
 
     async setAccount(user: Partial<User>,accountId: string): Promise<User>{

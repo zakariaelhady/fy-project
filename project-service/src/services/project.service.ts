@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ProjectDao } from '../dao/project.dao';
 import { ProjectCreateDto } from '../dto/project-create.dto';
 import { ProjectUpdateDto } from '../dto/project-update.dto';
-import { Project } from '../shemas/project.shema';
+import { Project } from 'src/shemas/project.shema';
 
 @Injectable()
 export class ProjectService {
@@ -12,12 +12,8 @@ export class ProjectService {
         return await this.projectDao.createP(projectCreateDto);
     }  
     
-    async getProjects(): Promise<Project[]>{
-        return await this.projectDao.find({});
-    }
-
-    async getProjectsCount(userId: string): Promise<number>{
-        return await this.projectDao.count({_id: userId});
+    async getProjects(projectIdList: string[]): Promise<Project[]>{
+        return await this.projectDao.find({ _id: { $in: projectIdList}});
     }
 
     async getProjectById(projectId: string): Promise<Project>{

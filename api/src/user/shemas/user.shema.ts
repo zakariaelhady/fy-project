@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { Project } from './project.shema';
 import * as mongoose from 'mongoose';
 import { Account } from './account.shema';
 export type UserDocument = HydratedDocument<User>;
@@ -22,8 +21,8 @@ export class User {
     @Prop()
     address: string;
     
-    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: Project.name }] })
-    projects: [Project];
+    @Prop()
+    projects: string[];
 
     @Prop({ type: { type: mongoose.Schema.Types.ObjectId, ref: Account.name } })
     account: Account;

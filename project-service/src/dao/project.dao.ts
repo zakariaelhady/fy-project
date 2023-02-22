@@ -1,13 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model, SortOrder, SortValues } from 'mongoose';
-import { Project, ProjectDocument } from '../shemas/project.shema';
-import { User } from '../shemas/user.shema';
-import { UserDao } from './user.dao';
+import { FilterQuery, Model } from 'mongoose';
+import { Project, ProjectDocument } from 'src/shemas/project.shema';
 
 @Injectable()
 export class ProjectDao {
-    constructor(@InjectModel(Project.name) private projectModel: Model<ProjectDocument>,private readonly userDao: UserDao) {}
+    constructor(@InjectModel(Project.name) private projectModel: Model<ProjectDocument>) {}
 
     async create(project: Project): Promise<Project>{
         const newProject = new this.projectModel(project).save();
@@ -21,12 +19,8 @@ export class ProjectDao {
     async find(projectFilterQuery: FilterQuery<Project>): Promise<Project[]>{
         return this.projectModel.find(projectFilterQuery);
     }
-    async count(userFilterQuery: FilterQuery<User>): Promise<number>{
-        return await (await this.userDao.findOnePopulate(userFilterQuery)).projects.length;
-    }
 
-    async delete(projectId:string,userId: string): Promise<Project>{
-        await this.userDao.removeProject({_id: userId}, projectId);
+    async delete(projectId:string): Promise<Project>{
         return this.projectModel.findOneAndDelete({_id: projectId}); 
     }
     async findOneAndUpdate(projectFilterQuery: FilterQuery<Project>,project: Partial<Project>): Promise<Project>{

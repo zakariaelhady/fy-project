@@ -1,5 +1,4 @@
 import { IsString, IsPhoneNumber, IsEmail, IsNotEmpty, IsOptional, Matches, MinLength } from 'class-validator';
-import { Project } from '../shemas/project.shema';
 import { AccountDto } from './account.dto';
 export class UserCreateDto{
     @IsString()
@@ -24,5 +23,5 @@ export class UserCreateDto{
 
     account: AccountDto;
     
-    projects: [Project];
+    projects: string[];
 }

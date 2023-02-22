@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { FilterQuery, Model, ObjectId, SortOrder, SortValues } from 'mongoose';
 import { RequestOptionsDto } from '../dto/request-options.dto';
 import { Account, AccountSchema } from '../shemas/account.shema';
-import { Project } from '../shemas/project.shema';
 import { User, UserDocument } from '../shemas/user.shema';
 
 @Injectable()
